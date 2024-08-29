@@ -33,6 +33,12 @@ module stream::test_helpers {
         assert!(unredeemed_shares == expected_unredeemed_shares, 0);
     }
 
+    public fun assert_withdrawal(user: &signer, expected_round: u64, expected_shares: u64) {
+        let (round, shares) = vault::get_withdrawal(signer::address_of(user));
+        assert!(round == expected_round, 0);
+        assert!(shares == expected_shares, 0);
+    }
+
     public fun assert_vault_state(
         expected_round: u64,
         expected_locked_amount: u64,

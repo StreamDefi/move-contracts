@@ -353,7 +353,7 @@ module stream::vault {
         assert!(withdrawal_round < vault_state.round, EINVALID_ROUND);
 
         withdrawal.shares = 0;
-        vault_state.queued_withdraw_shares = vault_state.queued_withdraw_shares + withdrawal_shares;
+        vault_state.queued_withdraw_shares = vault_state.queued_withdraw_shares - withdrawal_shares;
 
         let round_per_share = *smart_table::borrow_with_default(&vault_state.round_price_per_share, withdrawal_round, &0);
         let withdraw_amount = shares_math::sharesToAsset(
@@ -372,6 +372,10 @@ module stream::vault {
         let vault_balance = borrow_global_mut<VaultBalance>(@stream);
         let withdrawn_shares = coin::extract(&mut vault_balance.withdrawal_shares, withdrawal_shares);
         coin::burn(withdrawn_shares, &vault_balance.burn_cap);
+
+        // Transfer underlying tokens to user
+        transferAsset(user_addr, withdraw_amount);
+        vault_state.last_queued_withdraw_amount = vault_state.last_queued_withdraw_amount - withdraw_amount;
     }
 
     /************************************************
@@ -433,6 +437,14 @@ module stream::vault {
     /************************************************
      *  VAULT OPERATIONS
      ***********************************************/
+
+    public fun add_to_balance(keeper: &signer, amount: u64) acquires VaultBalance, VaultManagement {
+        let keeper_addr = borrow_global<VaultManagement>(@stream).keeper;
+        assert!(signer::address_of(keeper) == keeper_addr, EUNAUTHORIZED);
+
+        let vault_balance = borrow_global_mut<VaultBalance>(@stream);
+        coin::merge(&mut vault_balance.balance, coin::withdraw(keeper, amount));
+    }
 
     /// Rolls to the next round, finalizing prev round pricePerShare and minting new shares
     /// Keeper only deposits enough to fulfill withdraws and passes the true amount as 'currentBalance'
@@ -560,13 +572,14 @@ module stream::vault {
     }
 
     #[view]
-    public fun get_withdrawal(user: address): Withdrawal acquires VaultBalance {
+    public fun get_withdrawal(user: address): (u64, u64) acquires VaultBalance {
         let vault_balance = borrow_global<VaultBalance>(@stream);
-        *smart_table::borrow_with_default(&vault_balance.withdrawals, user, &Withdrawal {
+        let withdrawal = smart_table::borrow_with_default(&vault_balance.withdrawals, user, &Withdrawal {
             // Default values of 0 to be as similar to Solidity code as possible
             round: 0,
             shares: 0,
-        })
+        });
+        (withdrawal.round, withdrawal.shares)
     }
 
     #[view]
@@ -596,6 +609,11 @@ module stream::vault {
     }
 
     #[view]
+    public fun currentQueuedWithdrawShares(): u64 acquires VaultState {
+        borrow_global<VaultState>(@stream).current_queued_withdraw_shares
+    }
+
+    #[view]
     public fun queuedWithdrawShares(): u64 acquires VaultState {
         borrow_global<VaultState>(@stream).queued_withdraw_shares
     }
@@ -603,6 +621,11 @@ module stream::vault {
     #[view]
     public fun lastLockedAmount(): u64 acquires VaultState {
         borrow_global<VaultState>(@stream).last_locked_amount
+    }
+
+    #[view]
+    public fun lastQueuedWithdrawAmount(): u64 acquires VaultState {
+        borrow_global<VaultState>(@stream).last_queued_withdraw_amount
     }
 
     #[view]

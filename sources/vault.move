@@ -39,6 +39,8 @@ module stream::vault {
     const EWITHDRAWAL_NOT_INITIATED: u64 = 10;
     /// Exceeds available shares
     const EEXCEEDS_AVAILABLE: u64 = 11;
+    /// Zero address
+    const EZERO_ADDRESS: u64 = 12;
 
     // 0x1::aptos_coin::AptosCoin
     // 0x123::stream::VaultToken
@@ -516,6 +518,7 @@ module stream::vault {
     /// Sets the new keeper
     /// @param new_keeper is the address of the new keeper
     public entry fun setNewKeeper(owner: &signer, new_keeper: address) acquires VaultManagement {
+        assert!(new_keeper != @0x0, EZERO_ADDRESS);
         assert_is_owner(owner);
         let management = borrow_global_mut<VaultManagement>(@stream);
         management.keeper = new_keeper;
@@ -524,6 +527,7 @@ module stream::vault {
     /// Sets a new cap for deposits
     /// @param new_cap is the new cap for deposits
     public entry fun setCap(owner: &signer, new_cap: u64) acquires Vault, VaultManagement {
+        assert!(new_cap > 0, EZERO_AMOUNT);
         assert_is_owner(owner);
         let vault = borrow_global_mut<Vault>(@stream);
         event::emit(CapSet {
@@ -544,6 +548,11 @@ module stream::vault {
     /************************************************
      *  GETTERS
      ***********************************************/
+
+    #[view]
+    public fun keeper(): address acquires VaultManagement {
+        borrow_global<VaultManagement>(@stream).keeper
+    }
 
     #[view]
     public fun vault_state(): (u64, u64, u64, u64, u64, u64, u64, u64) acquires VaultState {

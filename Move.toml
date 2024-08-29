@@ -1,0 +1,14 @@
+[package]
+name = 'stream'
+version = '1.0.0'
+
+[addresses]
+stream = "_"
+
+[dev-addresses]
+stream = "0xcafe"
+
+[dependencies]
+AptosFramework = { local = "../framework/aptos-framework" }
+AptosStdlib = { local = "../framework/aptos-stdlib" }
+AptosTokenObjects = { local = "../framework/aptos-token-objects" }

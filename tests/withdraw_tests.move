@@ -36,7 +36,7 @@ module stream::withdraw_tests {
         let deposit_amount = test_helpers::one_apt();
         vault::deposit(user, deposit_amount);
 
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
 
         vault::withdrawInstantly(user, deposit_amount);
     }
@@ -128,7 +128,7 @@ module stream::withdraw_tests {
         let deposit_amount = test_helpers::one_apt();
         vault::deposit(user, deposit_amount);
 
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
 
         vault::initiateWithdraw(user, 0);
     }
@@ -141,7 +141,7 @@ module stream::withdraw_tests {
         let deposit_amount = test_helpers::one_apt();
         vault::deposit(user, deposit_amount);
 
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
         assert!(vault::total_unredeemed_shares() == deposit_amount, 0);
 
         let withdraw_amount = deposit_amount / 2;
@@ -171,7 +171,7 @@ module stream::withdraw_tests {
         let deposit_amount = test_helpers::one_apt();
         vault::deposit(user, deposit_amount);
 
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
 
         test_helpers::assert_withdrawal(user, 0, 0);
 
@@ -189,7 +189,7 @@ module stream::withdraw_tests {
         let deposit_amount = test_helpers::one_apt();
         vault::deposit(user, deposit_amount);
 
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
 
         test_helpers::assert_withdrawal(user, 0, 0);
 
@@ -211,7 +211,7 @@ module stream::withdraw_tests {
         let deposit_amount = test_helpers::one_apt();
         vault::deposit(user, deposit_amount);
 
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
 
         vault::initiateWithdraw(user, deposit_amount + 1);
     }
@@ -225,11 +225,11 @@ module stream::withdraw_tests {
         let deposit_amount = test_helpers::one_apt();
         vault::deposit(user, deposit_amount);
 
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
         vault::initiateWithdraw(user, deposit_amount / 2);
 
-        vault::add_to_balance(keeper, deposit_amount);
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::add_to_balance(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
         vault::initiateWithdraw(user, deposit_amount / 2);
     }
 
@@ -241,7 +241,7 @@ module stream::withdraw_tests {
         let deposit_amount = test_helpers::one_apt();
         vault::deposit(user, deposit_amount);
 
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
 
         assert!(vault::currentQueuedWithdrawShares() == 0, 0);
         let withdraw_amount = deposit_amount / 2;
@@ -258,7 +258,7 @@ module stream::withdraw_tests {
         let deposit_amount = test_helpers::one_apt();
         vault::deposit(user, deposit_amount);
 
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
         vault::completeWithdraw(user);
     }
 
@@ -271,7 +271,7 @@ module stream::withdraw_tests {
         let deposit_amount = test_helpers::one_apt();
         vault::deposit(user, deposit_amount);
 
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
         vault::initiateWithdraw(user, deposit_amount);
         vault::completeWithdraw(user);
     }
@@ -284,15 +284,15 @@ module stream::withdraw_tests {
         let deposit_amount = test_helpers::one_apt();
         vault::deposit(user, deposit_amount);
 
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
         test_helpers::assert_withdrawal(user, 0, 0);
 
         let withdraw_amount = deposit_amount / 2;
         vault::initiateWithdraw(user, withdraw_amount);
         test_helpers::assert_withdrawal(user, 2, withdraw_amount);
 
-        vault::add_to_balance(keeper, deposit_amount);
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::add_to_balance(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
 
         vault::completeWithdraw(user);
         test_helpers::assert_withdrawal(user, 2, 0);
@@ -307,7 +307,7 @@ module stream::withdraw_tests {
         vault::deposit(user, deposit_amount);
         assert!(vault::remainingBalance() == deposit_amount, 0);
 
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
         let keeper_addr = signer::address_of(keeper);
         assert!(coin::balance<AptosCoin>(keeper_addr) == deposit_amount, 0);
         assert!(vault::remainingBalance() == 0, 0);
@@ -317,8 +317,8 @@ module stream::withdraw_tests {
         assert!(coin::balance<AptosCoin>(keeper_addr) == deposit_amount, 0);
         assert!(vault::remainingBalance() == 0, 0);
 
-        vault::add_to_balance(keeper, deposit_amount);
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::add_to_balance(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
         assert!(vault::remainingBalance() == withdraw_amount, 0);
         assert!(coin::balance<AptosCoin>(keeper_addr) == deposit_amount - withdraw_amount, 0);
 
@@ -338,13 +338,13 @@ module stream::withdraw_tests {
         let deposit_amount = test_helpers::one_apt();
         vault::deposit(user, deposit_amount);
 
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
 
         let withdraw_amount = deposit_amount / 2;
         vault::initiateWithdraw(user, withdraw_amount);
 
-        vault::add_to_balance(keeper, deposit_amount);
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::add_to_balance(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
         assert!(vault::queuedWithdrawShares() == withdraw_amount, 0);
 
         vault::completeWithdraw(user);
@@ -359,13 +359,13 @@ module stream::withdraw_tests {
         let deposit_amount = test_helpers::one_apt();
         vault::deposit(user, deposit_amount);
 
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
 
         let withdraw_amount = deposit_amount / 2;
         vault::initiateWithdraw(user, withdraw_amount);
 
-        vault::add_to_balance(keeper, deposit_amount);
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::add_to_balance(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
         assert!(vault::totalSupply() == (deposit_amount as u128), 0);
 
         vault::completeWithdraw(user);
@@ -380,13 +380,13 @@ module stream::withdraw_tests {
         let deposit_amount = test_helpers::one_apt();
         vault::deposit(user, deposit_amount);
 
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
 
         let withdraw_amount = deposit_amount / 2;
         vault::initiateWithdraw(user, withdraw_amount);
 
-        vault::add_to_balance(keeper, deposit_amount);
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::add_to_balance(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
         assert!(vault::lastQueuedWithdrawAmount() == withdraw_amount, 0);
 
         vault::completeWithdraw(user);
@@ -407,7 +407,7 @@ module stream::withdraw_tests {
         });
         test_helpers::assert_vault_state(1, 0, 0, deposit_amount * 10, 0, 0, 0, 0, 0);
 
-        vault::rollToNextRound(keeper, deposit_amount * 10);
+        test_helpers::rollToNextRound(keeper, deposit_amount * 10);
         test_helpers::assert_vault_state(2, deposit_amount * 10, 0, 0, 0, 0, 0, (deposit_amount as u128) * 10, deposit_amount);
 
         vector::for_each(users, |user_addr| {
@@ -433,7 +433,7 @@ module stream::withdraw_tests {
         });
         test_helpers::assert_vault_state(1, 0, 0, deposit_amount * 10, 0, 0, 0, 0, 0);
 
-        vault::rollToNextRound(keeper, deposit_amount * 10);
+        test_helpers::rollToNextRound(keeper, deposit_amount * 10);
         test_helpers::assert_vault_state(2, deposit_amount * 10, 0, 0, 0, 0, 0, (deposit_amount as u128) * 10, deposit_amount);
 
         vector::for_each(users, |user_addr| {
@@ -442,8 +442,8 @@ module stream::withdraw_tests {
             test_helpers::assert_withdrawal(user, 2, deposit_amount);
         });
 
-        vault::add_to_balance(keeper, deposit_amount * 10);
-        vault::rollToNextRound(keeper, deposit_amount * 10);
+        test_helpers::add_to_balance(keeper, deposit_amount * 10);
+        test_helpers::rollToNextRound(keeper, deposit_amount * 10);
         test_helpers::assert_vault_state(3, 0, deposit_amount * 10, 0, deposit_amount * 10, deposit_amount * 10, 0, ((deposit_amount * 10) as u128), deposit_amount);
 
         vector::for_each(users, |user_addr| {

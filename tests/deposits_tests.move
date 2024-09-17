@@ -67,7 +67,7 @@ module stream::deposits_tests {
         test_helpers::assert_deposit_receipt(user_2, 1, deposit_amount_2, 0);
         test_helpers::assert_vault_state(1, 0, 0, deposit_amount_1 + deposit_amount_2, 0, 0, 0, 0, 0);
 
-        vault::rollToNextRound(keeper, deposit_amount_1 + deposit_amount_2);
+        test_helpers::rollToNextRound(keeper, deposit_amount_1 + deposit_amount_2);
         assert!(coin::balance<AptosCoin>(signer::address_of(keeper)) == deposit_amount_1 + deposit_amount_2, 0);
         assert!(vault::remainingBalance() == 0, 0);
         assert!(vault::total_unredeemed_shares() == deposit_amount_1 + deposit_amount_2, 0);
@@ -97,7 +97,7 @@ module stream::deposits_tests {
         test_helpers::assert_deposit_receipt(user_2, 1, deposit_amount_2, 0);
         test_helpers::assert_vault_state(1, 0, 0, deposit_amount_1 + deposit_amount_2, 0, 0, 0, 0, 0);
 
-        vault::rollToNextRound(keeper, deposit_amount_1 + deposit_amount_2);
+        test_helpers::rollToNextRound(keeper, deposit_amount_1 + deposit_amount_2);
         assert!(coin::balance<AptosCoin>(signer::address_of(keeper)) == deposit_amount_1 + deposit_amount_2, 0);
         assert!(vault::remainingBalance() == 0, 0);
         assert!(vault::total_unredeemed_shares() == deposit_amount_1 + deposit_amount_2, 0);

@@ -10,6 +10,8 @@ module stream::vault {
     use aptos_framework::aptos_coin::AptosCoin;
     use stream::shares_math;
 
+    friend stream::vault_keeper;
+
     // To be updated before deploying a new vault
     const TOKEN_DECIMALS: u8 = 8;
     const TOKEN_NAME: vector<u8> = b"Stream Vault token [ETH]";
@@ -93,8 +95,6 @@ module stream::vault {
     // This data is stored directly on the contract account, mimicking global state in Solidity/EVM.
     struct VaultManagement has key {
         owner: address,
-        /// role in charge of weekly vault operations such as rollToNextRound
-        /// no access to critical vault changes
         keeper: address,
     }
 
@@ -440,10 +440,7 @@ module stream::vault {
      *  VAULT OPERATIONS
      ***********************************************/
 
-    public fun add_to_balance(keeper: &signer, amount: u64) acquires VaultBalance, VaultManagement {
-        let keeper_addr = borrow_global<VaultManagement>(@stream).keeper;
-        assert!(signer::address_of(keeper) == keeper_addr, EUNAUTHORIZED);
-
+    public(friend) fun add_to_balance(keeper: &signer, amount: u64) acquires VaultBalance {
         let vault_balance = borrow_global_mut<VaultBalance>(@stream);
         coin::merge(&mut vault_balance.balance, coin::withdraw(keeper, amount));
     }
@@ -452,13 +449,7 @@ module stream::vault {
     /// Keeper only deposits enough to fulfill withdraws and passes the true amount as 'currentBalance'
     /// Keeper should be a contract so currentBalance and the call to the func happens atomically
     /// @param currentBalance is the amount of `asset` that is currently being used for strategy + the amount in the contract right before the roll
-    public entry fun rollToNextRound(
-        user: &signer,
-        current_balance: u64,
-    ) acquires Vault, VaultBalance, VaultManagement, VaultState {
-        let keeper = borrow_global<VaultManagement>(@stream).keeper;
-        assert!(signer::address_of(user) == keeper, EUNAUTHORIZED);
-
+    public(friend) fun rollToNextRound(keeper: &signer, current_balance: u64) acquires Vault, VaultBalance, VaultState {
         let vault_params = borrow_global<Vault>(@stream);
         assert!(current_balance >= vault_params.minimum_supply, EINSUFFICIENT_BALANCE);
         let vault_state = borrow_global_mut<VaultState>(@stream);
@@ -500,7 +491,10 @@ module stream::vault {
         vault_state.locked_amount = current_balance - queued_withdraw_amount;
 
         let amount_to_keeper = coin::value(&vault_balance.balance) - queued_withdraw_amount;
-        aptos_account::deposit_coins(keeper, coin::extract(&mut vault_balance.balance, amount_to_keeper));
+        aptos_account::deposit_coins(
+            signer::address_of(keeper),
+            coin::extract(&mut vault_balance.balance, amount_to_keeper),
+        );
     }
 
     /************************************************
@@ -550,11 +544,6 @@ module stream::vault {
      ***********************************************/
 
     #[view]
-    public fun keeper(): address acquires VaultManagement {
-        borrow_global<VaultManagement>(@stream).keeper
-    }
-
-    #[view]
     public fun vault_state(): (u64, u64, u64, u64, u64, u64, u64, u64) acquires VaultState {
         let vault_state = borrow_global<VaultState>(@stream);
         let curr_round_price_per_share = if (vault_state.round == 1) {
@@ -572,6 +561,11 @@ module stream::vault {
             vault_state.current_queued_withdraw_shares,
             curr_round_price_per_share,
         )
+    }
+
+    #[view]
+    public fun keeper(): address acquires VaultManagement {
+        borrow_global<VaultManagement>(@stream).keeper
     }
 
     #[view]
@@ -799,4 +793,7 @@ module stream::vault {
     public fun init_for_test(stream_signer: &signer) {
         init_module(stream_signer);
     }
+
+    #[test_only]
+    friend stream::test_helpers;
 }

@@ -70,4 +70,12 @@ module stream::test_helpers {
         assert!(vault::totalSupply() == expected_total_share_supply, (vault::totalSupply() as u64));
         assert!(curr_round_price_per_share == expected_curr_round_price_per_share, 0);
     }
+
+    public fun rollToNextRound(keeper: &signer, deposit_amount: u64) {
+        vault::rollToNextRound(keeper, deposit_amount);
+    }
+
+    public fun add_to_balance(keeper: &signer, deposit_amount: u64) {
+        vault::add_to_balance(keeper, deposit_amount);
+    }
 }

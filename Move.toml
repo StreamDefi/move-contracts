@@ -7,8 +7,10 @@ stream = "_"
 
 [dev-addresses]
 stream = "0xcafe"
+stream_managers = "0xcafe1"
 
 [dependencies]
 AptosFramework = { local = "../framework/aptos-framework" }
 AptosStdlib = { local = "../framework/aptos-stdlib" }
 AptosTokenObjects = { local = "../framework/aptos-token-objects" }
+stream_managers = { local = "../stream-managers" }

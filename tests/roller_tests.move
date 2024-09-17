@@ -18,7 +18,7 @@ module stream::roller_tests {
         vault::deposit(user, deposit_amount);
         test_helpers::assert_deposit_receipt(user, 1, deposit_amount, 0);
         test_helpers::assert_vault_state(1, 0, 0, deposit_amount, 0, 0, 0, 0, 0);
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
 
         assert!(vault::round() == 2, 0);
         assert!(vault::totalBalance() == deposit_amount, 0);
@@ -44,7 +44,7 @@ module stream::roller_tests {
         });
 
         test_helpers::assert_vault_state(1, 0, 0, deposit_amount * 10, 0, 0, 0, 0, 0);
-        vault::rollToNextRound(keeper, deposit_amount * 10);
+        test_helpers::rollToNextRound(keeper, deposit_amount * 10);
 
         assert!(vault::round() == 2, 0);
         assert!(vault::totalBalance() == deposit_amount * 10, 0);

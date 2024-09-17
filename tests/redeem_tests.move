@@ -25,7 +25,7 @@ module stream::redeem_tests {
         let user_addr = signer::address_of(user);
         assert!(vault::shares(user_addr) == 0, 0);
 
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
 
         assert!(vault::shares(user_addr) == deposit_amount, 0);
         // Balance = 0
@@ -47,7 +47,7 @@ module stream::redeem_tests {
         let user_addr = signer::address_of(user);
         assert!(vault::shares(user_addr) == 0, 0);
 
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
 
         assert!(vault::shares(user_addr) == deposit_amount, 0);
         // Balance = 0
@@ -67,7 +67,7 @@ module stream::redeem_tests {
         test_helpers::mint(user, 1000);
         let deposit_amount = test_helpers::one_apt();
         vault::deposit(user, deposit_amount);
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
         vault::redeem(user, deposit_amount + 1);
     }
 
@@ -79,7 +79,7 @@ module stream::redeem_tests {
         let deposit_amount = test_helpers::one_apt();
         vault::deposit(user, deposit_amount);
         test_helpers::assert_deposit_receipt(user, 1, deposit_amount, 0);
-        vault::rollToNextRound(keeper, deposit_amount);
+        test_helpers::rollToNextRound(keeper, deposit_amount);
 
         vault::redeem(user, deposit_amount - 1);
         test_helpers::assert_deposit_receipt(user, 1, 0, 1);
@@ -110,7 +110,7 @@ module stream::redeem_tests {
         test_helpers::mint(user, 1000);
         let deposit_amount_1 = test_helpers::one_apt();
         vault::deposit(user, deposit_amount_1);
-        vault::rollToNextRound(keeper, deposit_amount_1);
+        test_helpers::rollToNextRound(keeper, deposit_amount_1);
 
         test_helpers::assert_deposit_receipt(user, 1, deposit_amount_1, 0);
 

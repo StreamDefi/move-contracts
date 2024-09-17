@@ -28,16 +28,6 @@ module stream::setters_tests {
         assert!(vault::keeper() == new_keeper_addr, 0);
     }
 
-    #[test(owner = @0xcafe, keeper = @0x123, new_keeper = @0x234)]
-    #[expected_failure(abort_code = stream::vault::EUNAUTHORIZED)]
-    fun test_RevertIfOldKeeperMakesCallAfterChanged(owner: &signer, keeper: &signer, new_keeper: &signer) {
-        test_helpers::setup(owner, keeper);
-        let new_keeper_addr = signer::address_of(new_keeper);
-        vault::setNewKeeper(owner, new_keeper_addr);
-        assert!(vault::keeper() == new_keeper_addr, 0);
-        vault::rollToNextRound(keeper, 0);
-    }
-
     #[test(owner = @0xcafe, keeper = @0x123)]
     #[expected_failure(abort_code = stream::vault::EZERO_AMOUNT)]
     fun test_RevertIfCapIsSetToZero(owner: &signer, keeper: &signer) {
